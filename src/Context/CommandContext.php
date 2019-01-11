@@ -37,7 +37,7 @@ class CommandContext implements Context
      *
      * @throws \Exception
      */
-    public function runCommend(string $commandString): void
+    public function runCommand(string $commandString): void
     {
         $application = new Application($this->kernel);
         $argvInput = new StringInput($commandString);
@@ -61,9 +61,9 @@ class CommandContext implements Context
      *
      * @throws \Exception
      */
-    public function runCommendWithoutFail(string $commandString): void
+    public function runCommandWithoutFail(string $commandString): void
     {
-        $this->runCommend($commandString);
+        $this->runCommand($commandString);
         $this->shouldNotFailWithAnException();
     }
 
