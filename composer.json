@@ -24,5 +24,10 @@
             "name": "Alexander Miehe",
             "email": "alexander.miehe@flaconi.de"
         }
-    ]
+    ],
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    }
 }
