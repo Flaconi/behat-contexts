@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace App\Behat;
+namespace Flaconi\Behat\Context;
 
 use Behat\Behat\Context\Context;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
