@@ -7,6 +7,7 @@ use Behat\Gherkin\Node\PyStringNode;
 use Enqueue\Fs\FsDestination;
 use Exception;
 use Interop\Queue\Context as QueueContext;
+use function json_decode;
 use Webmozart\Assert\Assert;
 
 /**
@@ -70,5 +71,34 @@ class EnqueueContext implements Context
         $actualCount = \substr_count(file_get_contents($topic->getFileInfo()->getPathname()), '|{');
 
         Assert::eq($actualCount, $count);
+    }
+
+    /**
+     * @param string       $topicName
+     * @param PyStringNode $message
+     *
+     * @Given the topic :topicName should have a message:
+     */
+    public function topicShouldHaveAMessage(string $topicName, PyStringNode $message): void
+    {
+        /** @var FsDestination $topic */
+        $topic = $this->context->createQueue($topicName);
+
+        if (!$topic instanceof FsDestination) {
+            throw new Exception('Topic count is only implemented for now with support for the package "enqueue/fs".');
+        }
+
+        $expectedJson = json_decode($message->getRaw(), true);
+
+        $data = explode('|', file_get_contents($topic->getFileInfo()->getPathname()));
+
+        foreach ($data as $d) {
+            $jsonOb = json_decode($d, true);
+            if ($jsonOb !== null) {
+                Assert::eq($expectedJson, json_decode($jsonOb['body'], true));
+
+            }
+        }
+
     }
 }
