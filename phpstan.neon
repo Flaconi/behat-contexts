@@ -9,11 +9,9 @@ includes:
 parameters:
     classesAllowedToBeExtended:
         - App\Domain\Model\Enum
-    tmpDir: var/cache/phpstan
+    tmpDir: var/phpstan
     level: 7
     paths:
         - src
-    excludes_analyse:
-        - tests/coverageChecker.php
     ignoreErrors:
         - '/Parameter #1 $configuration of method Symfony\Component\DependencyInjection\Extension\Extension::processConfiguration() expects Symfony\Component\Config\Definition\ConfigurationInterface, Symfony\Component\Config\Definition\ConfigurationInterface|null given./'
