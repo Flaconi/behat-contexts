@@ -3,9 +3,10 @@
 namespace Flaconi\Behat\Context;
 
 use Behat\Behat\Context\Context;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\StringInput;
-use Symfony\Component\Console\Output\StreamOutput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Throwable;
 use Webmozart\Assert\Assert;
@@ -13,7 +14,7 @@ use Webmozart\Assert\Assert;
 /**
  * @author Alexander Miehe <alexander.miehe@flaconi.de>
  */
-class CommandContext implements Context
+final class CommandContext implements Context
 {
     /**
      * @var KernelInterface
@@ -35,7 +36,7 @@ class CommandContext implements Context
      *
      * @param string $commandString
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function runCommand(string $commandString): void
     {
@@ -43,12 +44,9 @@ class CommandContext implements Context
         $argvInput = new StringInput($commandString);
         $argvInput->setInteractive(false);
         $command = $application->get($argvInput->getFirstArgument());
-        $stream = \fopen('php://memory', 'w+b', false);
-        if (!$stream) {
-            throw new \RuntimeException('stream could not be created.');
-        }
+
         try {
-            $command->run($argvInput, new StreamOutput($stream));
+            $command->run($argvInput, new BufferedOutput());
         } catch (Throwable $exception) {
             $this->exception = $exception;
         }
@@ -59,7 +57,7 @@ class CommandContext implements Context
      *
      * @param string $commandString
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function runCommandWithoutFail(string $commandString): void
     {

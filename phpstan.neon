@@ -1,0 +1,19 @@
+includes:
+    #- vendor/jangregor/phpstan-prophecy/src/extension.neon
+    #- vendor/phpstan/phpstan-phpunit/extension.neon
+    #- vendor/phpstan/phpstan-phpunit/rules.neon
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - vendor/localheinz/phpstan-rules/rules.neon
+
+parameters:
+    classesAllowedToBeExtended:
+        - App\Domain\Model\Enum
+    tmpDir: var/cache/phpstan
+    level: 7
+    paths:
+        - src
+    excludes_analyse:
+        - tests/coverageChecker.php
+    ignoreErrors:
+        - '/Parameter #1 $configuration of method Symfony\Component\DependencyInjection\Extension\Extension::processConfiguration() expects Symfony\Component\Config\Definition\ConfigurationInterface, Symfony\Component\Config\Definition\ConfigurationInterface|null given./'

@@ -7,13 +7,18 @@ use Behat\Gherkin\Node\PyStringNode;
 use Enqueue\Fs\FsDestination;
 use Exception;
 use Interop\Queue\Context as QueueContext;
-use function json_decode;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Webmozart\Assert\Assert;
+use function explode;
+use function file_get_contents;
+use function json_decode;
+use function json_encode;
+use function substr_count;
 
 /**
  * @author Alexander Miehe <alexander.miehe@flaconi.de>
  */
-class EnqueueContext implements Context
+final class EnqueueContext implements Context
 {
     /**
      * @var QueueContext
@@ -42,13 +47,13 @@ class EnqueueContext implements Context
      * @param string       $topicName
      * @param PyStringNode $message
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @Given I push to :topic a message:
      */
     public function pushMessageToTopic(string $topicName, PyStringNode $message): void
     {
-        $psrMessage = $this->context->createMessage('', \json_decode($message->getRaw(), true));
+        $psrMessage = $this->context->createMessage('', json_decode($message->getRaw(), true));
         $topic = $this->context->createQueue($topicName);
         $this->context->createProducer()->send($topic, $psrMessage);
     }
@@ -61,14 +66,13 @@ class EnqueueContext implements Context
      */
     public function topicCountShouldBe(string $topicName, int $count): void
     {
-        /** @var FsDestination $topic */
         $topic = $this->context->createQueue($topicName);
 
         if (!$topic instanceof FsDestination) {
             throw new Exception('Topic count is only implemented for now with support for the package "enqueue/fs".');
         }
 
-        $actualCount = \substr_count(file_get_contents($topic->getFileInfo()->getPathname()), '|{');
+        $actualCount = substr_count($this->getFileContent($topic), '|{');
 
         Assert::eq($actualCount, $count);
     }
@@ -81,24 +85,38 @@ class EnqueueContext implements Context
      */
     public function topicShouldHaveAMessage(string $topicName, PyStringNode $message): void
     {
-        /** @var FsDestination $topic */
         $topic = $this->context->createQueue($topicName);
 
         if (!$topic instanceof FsDestination) {
             throw new Exception('Topic count is only implemented for now with support for the package "enqueue/fs".');
         }
 
-        $expectedJson = json_decode($message->getRaw(), true);
+        $jsonNormialized = json_encode(json_decode($message->getRaw(), true));
 
-        $data = explode('|', file_get_contents($topic->getFileInfo()->getPathname()));
+        $data = explode('|', $this->getFileContent($topic));
 
         foreach ($data as $d) {
-            $jsonOb = json_decode($d, true);
-            if ($jsonOb !== null) {
-                Assert::eq($expectedJson, json_decode($jsonOb['body'], true));
-
+            if (json_decode($d, true) === null) {
+                continue;
             }
+
+            Assert::contains($d, $jsonNormialized);
+        }
+    }
+
+    /**
+     * @param FsDestination $topic
+     *
+     * @return string
+     */
+    private function getFileContent(FsDestination $topic): string
+    {
+        $fileContents = file_get_contents($topic->getFileInfo()->getPathname());
+
+        if ($fileContents === false) {
+            throw new FileNotFoundException(null, 0, null, $topic->getFileInfo()->getPathname());
         }
 
+        return $fileContents;
     }
 }

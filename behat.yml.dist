@@ -3,3 +3,8 @@ default:
         default:
             contexts:
                 - FriendsOfBehat\TestContext\Context\TestContext
+
+ci:
+  formatters:
+    progress : ~
+    pretty: false
