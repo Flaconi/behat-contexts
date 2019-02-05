@@ -12,8 +12,8 @@ use Webmozart\Assert\Assert;
 use function explode;
 use function file_get_contents;
 use function json_decode;
-use function json_encode;
 use function substr_count;
+use function trim;
 
 /**
  * @author Alexander Miehe <alexander.miehe@flaconi.de>
@@ -91,16 +91,14 @@ final class EnqueueContext implements Context
             throw new Exception('Topic count is only implemented for now with support for the package "enqueue/fs".');
         }
 
-        $jsonNormialized = json_encode(json_decode($message->getRaw(), true));
-
         $data = explode('|', $this->getFileContent($topic));
 
         foreach ($data as $d) {
-            if (json_decode($d, true) === null) {
+            if (trim($d) === '') {
                 continue;
             }
 
-            Assert::contains($d, $jsonNormialized);
+            Assert::contains($d, $message->getRaw());
         }
     }
 

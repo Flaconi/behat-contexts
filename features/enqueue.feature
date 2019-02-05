@@ -41,7 +41,7 @@ Feature: Enqueue
              */
             public function topicShouldHaveADummyMessage(string $topic): void
             {
-                $this->enqueueContext->topicShouldHaveAMessage($topic, new PyStringNode(['{"foo": "bar"}'], 1));
+                $this->enqueueContext->topicShouldHaveAMessage($topic, new PyStringNode(['{"foo":"bar"}'], 1));
             }
         }
         """

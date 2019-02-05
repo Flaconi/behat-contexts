@@ -5,13 +5,12 @@ namespace Flaconi\Behat\Context;
 use Behat\Behat\Context\Context;
 use DOMDocument;
 use Exception;
-use GuzzleHttp\Psr7\Response;
-use Http\HttplugBundle\ClientFactory\MockFactory;
+use Http\Message\ResponseFactory;
 use Http\Mock\Client;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Webmozart\Assert\Assert;
 use function count;
 use function file_get_contents;
-use function GuzzleHttp\Psr7\stream_for;
 
 /**
  * @author Alexander Miehe <alexander.miehe@flaconi.de>
@@ -28,10 +27,16 @@ final class HttpClientContext implements Context
      */
     private $fixtureDir;
 
-    public function __construct(MockFactory $factory, string $fixtureDir)
+    /**
+     * @var ResponseFactory
+     */
+    private $responseFactory;
+
+    public function __construct(Client $client, string $fixtureDir, ResponseFactory $responseFactory)
     {
-        $this->client = $factory->createClient();
+        $this->client = $client;
         $this->fixtureDir = $fixtureDir;
+        $this->responseFactory = $responseFactory;
     }
 
     /**
@@ -43,14 +48,13 @@ final class HttpClientContext implements Context
     {
         $request = $this->client->getLastRequest();
 
-        $doc = new DOMDocument();
-        $doc->loadXML((string) $request->getBody());
-        $domNode = $doc->getElementsByTagName('xmlDoc')[0];
+        $actualDoc = new DOMDocument();
+        $actualDoc->loadXML((string) $request->getBody());
 
-        \PHPUnit\Framework\Assert::assertXmlStringEqualsXmlString(
-            file_get_contents($this->fixtureDir.'/'.$file),
-            $domNode->textContent
-        );
+        $expectedDoc = new DOMDocument();
+        $expectedDoc->load($this->getFileContents($this->fixtureDir.'/'.$file));
+
+        Assert::eq($actualDoc, $expectedDoc);
     }
 
     /**
@@ -60,11 +64,25 @@ final class HttpClientContext implements Context
      */
     public function shouldRespondWithMessageFromFile(string $file): void
     {
-        $response = new Response();
+        $this->shouldRespondWithStatusAndMessageFromFile(200, $file);
+    }
 
-        $this->client->addResponse(
-            $response->withBody(stream_for(file_get_contents($this->fixtureDir.'/'.$file)))
+    /**
+     * @param int    $status
+     * @param string $file
+     *
+     * @Given the http client should respond with :status and message from file :file
+     */
+    public function shouldRespondWithStatusAndMessageFromFile(int $status, string $file): void
+    {
+        $response = $this->responseFactory->createResponse(
+            $status,
+            null,
+            [],
+            $this->getFileContents($this->fixtureDir.'/'.$file)
         );
+
+        $this->client->addResponse($response);
     }
 
     /**
@@ -87,5 +105,21 @@ final class HttpClientContext implements Context
     public function requestCountShouldBe(int $count): void
     {
         Assert::eq(count($this->client->getRequests()), $count);
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    private function getFileContents(string $path): string
+    {
+        $fileContents = file_get_contents($path);
+
+        if ($fileContents === false) {
+            throw new FileNotFoundException(null, 0, null, $path);
+        }
+
+        return $fileContents;
     }
 }
