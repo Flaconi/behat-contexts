@@ -7,8 +7,6 @@
 
 Behat extension with custom helper steps
 
-* Test - improving the code style of phpunit test cases
-
 ## Table of contents
 
 1. [Installation](#installation)
