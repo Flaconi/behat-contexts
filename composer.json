@@ -32,7 +32,8 @@
         "localheinz/phpstan-rules": "^0.7.1",
         "symfony/http-kernel": "^4.2",
         "symfony/framework-bundle": "^4.2",
-        "php-http/mock-client": "^1.2"
+        "php-http/mock-client": "^1.2",
+        "php-http/client-common": "^2.0"
     },
     "scripts": {
         "code-style": [
