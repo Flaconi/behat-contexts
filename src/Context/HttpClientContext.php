@@ -7,10 +7,12 @@ use DOMDocument;
 use Exception;
 use Http\Message\ResponseFactory;
 use Http\Mock\Client;
+use InvalidArgumentException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Webmozart\Assert\Assert;
 use function count;
 use function file_get_contents;
+use function sprintf;
 
 /**
  * @author Alexander Miehe <alexander.miehe@flaconi.de>
@@ -105,6 +107,34 @@ final class HttpClientContext implements Context
     public function requestCountShouldBe(int $count): void
     {
         Assert::eq(count($this->client->getRequests()), $count);
+    }
+
+    /**
+     * @param int    $status
+     *
+     * @Given the http client should respond with :status
+     */
+    public function shouldRespondWithStatusOnly(int $status): void
+    {
+        $this->client->addResponse($this->responseFactory->createResponse($status));
+    }
+
+    /**
+     * @Given the http client should have a request for :uri
+     *
+     * @param string $uri
+     *
+     * @throws InvalidArgumentException
+     */
+    public function shouldHaveARequestForUri(string $uri): void
+    {
+        foreach ($this->client->getRequests() as $request) {
+            if ($request->getUri()->__toString() === $uri) {
+                return;
+            }
+        }
+
+        throw new InvalidArgumentException(sprintf('Uri "%s" was never called.', $uri));
     }
 
     /**
