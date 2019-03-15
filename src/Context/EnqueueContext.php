@@ -58,7 +58,7 @@ final class EnqueueContext implements Context
      * @throws InvalidDestinationException
      * @throws InvalidMessageException
      *
-     * @Given I push to :topic in :contextName a message:
+     * @Given I push to :topic in context :contextName a message:
      */
     public function pushMessageToTopicInContext(string $topicName, string $contextName, PyStringNode $message): void
     {
