@@ -33,7 +33,7 @@ Feature: Enqueue
              */
             public function iPushToATopicADummyMessage(string $topic): void
             {
-                $this->enqueueContext->pushMessageToTopic($topic, new PyStringNode(['{"foo": "bar"}'], 1));
+                $this->enqueueContext->pushMessageToTopicInContext($topic, 'dummy', new PyStringNode(['{"foo": "bar"}'], 1));
             }
 
             /**
@@ -41,9 +41,31 @@ Feature: Enqueue
              */
             public function topicShouldHaveADummyMessage(string $topic): void
             {
-                $this->enqueueContext->topicShouldHaveAMessage($topic, new PyStringNode(['{"foo":"bar"}'], 1));
+                $this->enqueueContext->topicInContextShouldHaveAMessage($topic, 'dummy', new PyStringNode(['{"foo":"bar"}'], 1));
             }
         }
+        """
+    And a config file "features/bootstrap/config/services.php" containing:
+        """
+        <?php
+        use Symfony\Component\DependencyInjection\Definition;
+
+        $container->setParameter('contextArray', ['dummy' => new Definition(\Enqueue\Fs\FsContext::class, ['%paths.base%/enqueue', 1, 0777, 100])]);
+        """
+    And a Behat configuration containing:
+        """
+        default:
+            suites:
+              default:
+                contexts:
+                  - FeatureContext
+                  - flaconi:enqueue:
+                      - '%contextArray%'
+            extensions:
+                Flaconi\Behat\Extension: ~
+                FriendsOfBehat\ServiceContainerExtension:
+                    imports:
+                        - features/bootstrap/config/services.php
         """
 
   Scenario: Pass Behat when no context is enabled
@@ -61,23 +83,7 @@ Feature: Enqueue
         1 step (1 passed)
         """
   Scenario: push a message to a topic and check content of the message
-    Given a Behat configuration containing:
-        """
-        default:
-            suites:
-              default:
-                services:
-                  context:
-                    class: Enqueue\Fs\FsContext
-                    arguments: ['%paths.base%/enqueue', 1, 0777, 100]
-                contexts:
-                  - FeatureContext
-                  - flaconi:enqueue:
-                      - '@context'
-            extensions:
-                Flaconi\Behat\Extension: ~
-        """
-    And a feature file containing:
+    Given a feature file containing:
     """
     Feature: Passing feature
         Scenario: Passing scenario
@@ -92,28 +98,12 @@ Feature: Enqueue
         """
 
   Scenario: push a message to a topic and count
-    Given a Behat configuration containing:
-        """
-        default:
-            suites:
-              default:
-                services:
-                  context:
-                    class: Enqueue\Fs\FsContext
-                    arguments: ['%paths.base%/enqueue', 1, 0777, 100]
-                contexts:
-                  - FeatureContext
-                  - flaconi:enqueue:
-                      - '@context'
-            extensions:
-                Flaconi\Behat\Extension: ~
-        """
-    And a feature file containing:
+    Given a feature file containing:
     """
     Feature: Passing feature
         Scenario: Passing scenario
             When I push to order_test a dummy message
-            Then the count of topic order_test should be 1
+            Then the count of topic order_test in context dummy should be 1
     """
     When I run Behat
     Then it should pass with:
@@ -123,30 +113,14 @@ Feature: Enqueue
         """
 
   Scenario: purge a topic
-    Given a Behat configuration containing:
-        """
-        default:
-            suites:
-              default:
-                services:
-                  context:
-                    class: Enqueue\Fs\FsContext
-                    arguments: ['%paths.base%/enqueue', 1, 0777, 100]
-                contexts:
-                  - FeatureContext
-                  - flaconi:enqueue:
-                      - '@context'
-            extensions:
-                Flaconi\Behat\Extension: ~
-        """
-    And a feature file containing:
+    Given a feature file containing:
     """
     Feature: Passing feature
         Scenario: Passing scenario
             Given I push to order_test a dummy message
-            And the count of topic order_test should be 1
+            And the count of topic order_test in context dummy should be 1
             When I purge topic order_test
-            Then the count of topic order_test should be 0
+            Then the count of topic order_test in context dummy should be 0
     """
     When I run Behat
     Then it should pass with:
@@ -156,27 +130,19 @@ Feature: Enqueue
         """
 
   Scenario: count a topic for a context which is not supported
-    Given a Behat configuration containing:
+    Given a config file "features/bootstrap/config/services.php" containing:
         """
-        default:
-            suites:
-              default:
-                services:
-                  context:
-                    class: Enqueue\Null\NullContext
-                contexts:
-                  - FeatureContext
-                  - flaconi:enqueue:
-                      - '@context'
-            extensions:
-                Flaconi\Behat\Extension: ~
+        <?php
+        use Symfony\Component\DependencyInjection\Definition;
+
+        $container->setParameter('contextArray', ['dummy' => new Definition(\Enqueue\Null\NullContext::class)]);
         """
     And a feature file containing:
     """
     Feature: Failing feature
         Scenario: Failing scenario
-            Given I push to order_test a dummy message
-            When the count of topic order_test should be 1
+            When I push to order_test a dummy message
+            Then the count of topic order_test in context dummy should be 1
     """
     When I run Behat
     Then it should fail with:
@@ -185,20 +151,12 @@ Feature: Enqueue
         """
 
   Scenario: check a message in a topic for a context which is not supported
-    Given a Behat configuration containing:
+    Given a config file "features/bootstrap/config/services.php" containing:
         """
-        default:
-            suites:
-              default:
-                services:
-                  context:
-                    class: Enqueue\Null\NullContext
-                contexts:
-                  - FeatureContext
-                  - flaconi:enqueue:
-                      - '@context'
-            extensions:
-                Flaconi\Behat\Extension: ~
+        <?php
+        use Symfony\Component\DependencyInjection\Definition;
+
+        $container->setParameter('contextArray', ['dummy' => new Definition(\Enqueue\Null\NullContext::class)]);
         """
     And a feature file containing:
     """

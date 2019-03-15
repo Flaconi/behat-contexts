@@ -6,80 +6,14 @@
 
     <exclude-pattern>*/Standards/*/Tests/*.(inc|css|js)</exclude-pattern>
     <exclude-pattern>*/*.(css|js)</exclude-pattern>
-    <exclude-pattern>tests/coverageChecker.php</exclude-pattern>
-    <exclude-pattern>tests/phpunitBootstrap.php</exclude-pattern>
 
     <arg name="colors" />
     <arg value="np"/>
 
-    <config name="installed_paths" value="vendor/escapestudios/symfony2-coding-standard" />
+    <rule ref="FlaconiCodingStandard" />
 
-    <rule ref="Symfony">
-        <exclude name="Squiz.Commenting.FunctionComment" />
-        <exclude name="Squiz.Commenting.FunctionComment" />
-        <exclude name="Symfony.Commenting.FunctionComment" />
-        <exclude name="Symfony.NamingConventions.ValidClassName.InvalidInterfaceName" />
-        <exclude name="Symfony.NamingConventions.ValidClassName.InvalidAbstractName" />
-        <exclude name="Symfony.NamingConventions.ValidClassName.InvalidExceptionName" />
-        <exclude name="Symfony.Functions.Arguments.Invalid" />
-        <exclude name="Symfony.Functions.ReturnType.Invalid" />
-        <exclude name="Symfony.ControlStructure.YodaConditions.Invalid" />
-    </rule>
-
-    <rule ref="Generic.Arrays.DisallowLongArraySyntax" />
-
-    <rule ref="vendor/flaconi/coding-standard/src/ruleset.xml">
-    </rule>
-
-    <rule ref="vendor/slevomat/coding-standard/SlevomatCodingStandard/ruleset.xml">
-        <properties>
-            <property name="linesCountBetweenDifferentAnnotationsTypes" value="1" />
-        </properties>
-
-        <exclude name="PEAR.Commenting.FunctionComment" />
-        <exclude name="SlevomatCodingStandard.Files.TypeNameMatchesFileName"/>
-        <exclude name="SlevomatCodingStandard.Types.EmptyLinesAroundTypeBraces"/>
-        <exclude name="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameAfterKeyword"/>
-        <exclude name="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation.NonFullyQualifiedClassName" />
-        <exclude name="SlevomatCodingStandard.Namespaces.UseOnlyWhitelistedNamespaces"/>
-        <exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingTraversableParameterTypeHintSpecification" />
-        <exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.UselessDocComment"/>
-        <exclude name="SlevomatCodingStandard.Namespaces.FullyQualifiedExceptions.NonFullyQualifiedException" />
-        <exclude name="SlevomatCodingStandard.ControlStructures.RequireYodaComparison" />
-        <exclude name="SlevomatCodingStandard.Commenting.RequireOneLinePropertyDocComment.MultiLinePropertyComment" />
-        <exclude name="SlevomatCodingStandard.Commenting.DocCommentSpacing.IncorrectLinesCountAfterLastContent" />
-        <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming.SuperfluousSuffix" />
-        <exclude name="SlevomatCodingStandard.Commenting.DocCommentSpacing.IncorrectLinesCountBetweenDifferentAnnotationsTypes" />
-        <exclude name="SlevomatCodingStandard.ControlStructures.NewWithoutParentheses.UselessParentheses" />
-        <exclude name="SlevomatCodingStandard.Commenting.UselessInheritDocComment.UselessInheritDocComment" />
-        <exclude name="SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter" />
-        <exclude name="SlevomatCodingStandard.ControlStructures.DisallowShortTernaryOperator.DisallowedShortTernaryOperator" />
-        <exclude name="SlevomatCodingStandard.Namespaces.FullyQualifiedGlobalFunctions.NonFullyQualified" />
-        <exclude name="SlevomatCodingStandard.Namespaces.FullyQualifiedGlobalConstantsSniff.NonFullyQualified" />
-    </rule>
-
-    <!-- Forbid using absolute class name references (except global ones) -->
-    <rule ref="SlevomatCodingStandard.Namespaces.ReferenceUsedNamesOnly">
-        <properties>
-            <property name="allowFallbackGlobalConstants" value="false"/>
-            <property name="allowFallbackGlobalFunctions" value="false"/>
-            <property name="allowFullyQualifiedGlobalClasses" value="false"/>
-            <property name="allowFullyQualifiedGlobalConstants" value="false"/>
-            <property name="allowFullyQualifiedGlobalFunctions" value="false"/>
-            <property name="allowFullyQualifiedNameForCollidingClasses" value="true"/>
-            <property name="allowFullyQualifiedNameForCollidingConstants" value="true"/>
-            <property name="allowFullyQualifiedNameForCollidingFunctions" value="true"/>
-            <property name="searchAnnotations" value="true"/>
-        </properties>
-    </rule>
 
     <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint">
         <exclude-pattern>*/ClassResolver.php</exclude-pattern>
-    </rule>
-
-    <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
-        <properties>
-            <property name="searchAnnotations" value="true"/>
-        </properties>
     </rule>
 </ruleset>

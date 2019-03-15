@@ -27,8 +27,7 @@
         "phpstan/phpstan": "^0.11.1",
         "phpstan/phpstan-deprecation-rules": "^0.11.0",
         "phpstan/phpstan-strict-rules": "^0.11.0",
-        "escapestudios/symfony2-coding-standard": "^3.5",
-        "flaconi/coding-standard": "^1.0.1",
+        "flaconi/coding-standard": "^3.0",
         "localheinz/phpstan-rules": "^0.7.1",
         "symfony/http-kernel": "^4.2",
         "symfony/framework-bundle": "^4.2",
@@ -53,7 +52,7 @@
     ],
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0.x-dev"
+            "dev-master": "2.0.x-dev"
         }
     }
 }
