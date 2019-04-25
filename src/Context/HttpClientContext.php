@@ -1,132 +1,106 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Flaconi\Behat\Context;
 
 use Behat\Behat\Context\Context;
-use DOMDocument;
+use Behat\Gherkin\Node\PyStringNode;
 use Exception;
 use Http\Message\ResponseFactory;
 use Http\Mock\Client;
 use InvalidArgumentException;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Webmozart\Assert\Assert;
-use function count;
-use function file_get_contents;
-use function sprintf;
+use PHPUnit\Framework\Assert;
+use function Safe\file_get_contents;
+use function Safe\json_decode;
+use function Safe\sprintf;
 
-/**
- * @author Alexander Miehe <alexander.miehe@flaconi.de>
- */
 final class HttpClientContext implements Context
 {
-    /**
-     * @var Client
-     */
+    /** @var Client */
     private $client;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $fixtureDir;
 
-    /**
-     * @var ResponseFactory
-     */
+    /** @var ResponseFactory */
     private $responseFactory;
 
     public function __construct(Client $client, string $fixtureDir, ResponseFactory $responseFactory)
     {
-        $this->client = $client;
-        $this->fixtureDir = $fixtureDir;
+        $this->client          = $client;
+        $this->fixtureDir      = $fixtureDir;
         $this->responseFactory = $responseFactory;
     }
 
     /**
      * @Then request to http client should be equal with :file
-     *
-     * @param string $file
+     * @Then last request to http client should be equal with xml in file :file
      */
-    public function requestShouldBeEqual(string $file): void
+    public function requestShouldBeEqual(string $file) : void
     {
         $request = $this->client->getLastRequest();
 
-        $actualDoc = new DOMDocument();
-        $actualDoc->loadXML((string) $request->getBody());
-
-        $expectedDoc = new DOMDocument();
-        $expectedDoc->load($this->getFileContents($this->fixtureDir.'/'.$file));
-
-        Assert::eq($actualDoc, $expectedDoc);
+        Assert::assertXmlStringEqualsXmlFile($this->fixtureDir . '/' . $file, (string) $request->getBody());
     }
 
     /**
-     * @param string $file
-     *
      * @Given the http client should respond with message from file :file
      */
-    public function shouldRespondWithMessageFromFile(string $file): void
+    public function shouldRespondWithMessageFromFile(string $file) : void
     {
         $this->shouldRespondWithStatusAndMessageFromFile(200, $file);
     }
 
     /**
-     * @param int    $status
-     * @param string $file
-     *
      * @Given the http client should respond with :status and message from file :file
      */
-    public function shouldRespondWithStatusAndMessageFromFile(int $status, string $file): void
+    public function shouldRespondWithStatusAndMessageFromFile(int $status, string $file) : void
     {
         $response = $this->responseFactory->createResponse(
             $status,
             null,
             [],
-            $this->getFileContents($this->fixtureDir.'/'.$file)
+            file_get_contents($this->fixtureDir . '/' . $file),
         );
 
         $this->client->addResponse($response);
     }
 
     /**
-     * @Then no request should be send
-     *
      * @throws Exception
+     *
+     * @Then no request should be send
      */
-    public function noRequestShouldBeSend(): void
+    public function noRequestShouldBeSend() : void
     {
-        Assert::eq(count($this->client->getRequests()), 0);
+        $this->requestCountShouldBe(0);
     }
 
     /**
-     * @param int $count
+     * @throws Exception
      *
      * @Then request count should be :count
-     *
-     * @throws Exception
      */
-    public function requestCountShouldBe(int $count): void
+    public function requestCountShouldBe(int $count) : void
     {
-        Assert::eq(count($this->client->getRequests()), $count);
+        Assert::assertCount($count, $this->client->getRequests());
     }
 
     /**
-     * @param int    $status
-     *
      * @Given the http client should respond with :status
      */
-    public function shouldRespondWithStatusOnly(int $status): void
+    public function shouldRespondWithStatusOnly(int $status) : void
     {
         $this->client->addResponse($this->responseFactory->createResponse($status));
     }
 
     /**
-     * @Given the http client should have a request for :uri
-     *
-     * @param string $uri
-     *
      * @throws InvalidArgumentException
+     *
+     * @Given the http client should have a request for :uri
      */
-    public function shouldHaveARequestForUri(string $uri): void
+    public function shouldHaveARequestForUri(string $uri) : void
     {
         foreach ($this->client->getRequests() as $request) {
             if ($request->getUri()->__toString() === $uri) {
@@ -138,18 +112,20 @@ final class HttpClientContext implements Context
     }
 
     /**
-     * @param string $path
+     * @throws InvalidArgumentException
      *
-     * @return string
+     * @Given the http client should have a request for :method :uri with json body:
      */
-    private function getFileContents(string $path): string
+    public function shouldHaveARequestForUriWithBody(string $method, string $uri, PyStringNode $body) : void
     {
-        $fileContents = file_get_contents($path);
+        foreach ($this->client->getRequests() as $request) {
+            if ($request->getMethod() === $method && $request->getUri()->__toString() === $uri) {
+                Assert::assertEquals(json_decode($body->getRaw(), true), json_decode((string) $request->getBody(), true));
 
-        if ($fileContents === false) {
-            throw new FileNotFoundException(null, 0, null, $path);
+                return;
+            }
         }
 
-        return $fileContents;
+        throw new InvalidArgumentException(sprintf('Uri "%s" was never called.', $uri));
     }
 }

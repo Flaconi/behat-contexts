@@ -5,7 +5,7 @@ includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
     - vendor/phpstan/phpstan-deprecation-rules/rules.neon
     - vendor/localheinz/phpstan-rules/rules.neon
-
+    - vendor/thecodingmachine/phpstan-safe-rule/phpstan-safe-rule.neon
 parameters:
     classesAllowedToBeExtended:
         - App\Domain\Model\Enum
