@@ -3,10 +3,10 @@
     "type": "behat-extension",
     "description": "Provides reuseable contexts that helps testing your application (enqueue)",
     "require": {
-        "php": "^7.2",
+        "php": "^7.3",
         "behat/behat": "^3.5",
-        "webmozart/assert": "^1.3",
-        "symfony/filesystem": "^4.2"
+        "phpunit/phpunit": "^8.1",
+        "thecodingmachine/safe": "^0.1.15"
     },
     "autoload": {
         "psr-4": {
@@ -32,7 +32,8 @@
         "symfony/http-kernel": "^4.2",
         "symfony/framework-bundle": "^4.2",
         "php-http/mock-client": "^1.2",
-        "php-http/client-common": "^2.0"
+        "php-http/client-common": "^2.0",
+        "thecodingmachine/phpstan-safe-rule": "^0.1.3"
     },
     "scripts": {
         "code-style": [

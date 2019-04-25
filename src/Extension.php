@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Flaconi\Behat;
 
@@ -10,47 +12,42 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
-/**
- * @author Alexander Miehe <alexander.miehe@flaconi.de>
- */
 final class Extension implements ExtensionInterface
 {
     /**
-     * @inheritDoc
+     * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
      */
-    public function process(ContainerBuilder $container): void
+    public function process(ContainerBuilder $container) : void
     {
         // TODO: Implement process() method.
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getConfigKey(): string
+    public function getConfigKey() : string
     {
         return 'flaconi';
     }
 
     /**
-     * @inheritDoc
+     * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
      */
-    public function initialize(ExtensionManager $extensionManager): void
+    public function initialize(ExtensionManager $extensionManager) : void
     {
         // TODO: Implement initialize() method.
     }
 
     /**
-     * @inheritDoc
+     * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
      */
-    public function configure(ArrayNodeDefinition $builder): void
+    public function configure(ArrayNodeDefinition $builder) : void
     {
         // TODO: Implement configure() method.
     }
 
     /**
      * @inheritDoc
+     * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
      */
-    public function load(ContainerBuilder $container, array $config): void
+    public function load(ContainerBuilder $container, array $config) : void
     {
         $definition = new Definition(ClassResolver::class);
         $definition->addTag(ContextExtension::CLASS_RESOLVER_TAG);
