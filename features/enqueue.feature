@@ -45,6 +45,7 @@ Feature: Enqueue
             }
         }
         """
+    And there is a phpunit config file
     And a config file "features/bootstrap/config/services.php" containing:
         """
         <?php
@@ -57,11 +58,16 @@ Feature: Enqueue
         default:
             suites:
               default:
+                local_coverage_enabled: true
                 contexts:
                   - FeatureContext
                   - flaconi:enqueue:
                       - '%contextArray%'
             extensions:
+                BehatLocalCodeCoverage\LocalCodeCoverageExtension:
+                  target_directory: '%paths.base_org%/var/coverage'
+                  split_by: feature
+                Flaconi\Behat\Tests\ServiceContainerExtension: ~
                 Flaconi\Behat\Extension: ~
                 FriendsOfBehat\ServiceContainerExtension:
                     imports:

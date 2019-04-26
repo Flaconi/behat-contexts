@@ -3,7 +3,11 @@ default:
         default:
             contexts:
                 - FriendsOfBehat\TestContext\Context\TestContext
-
+                - Flaconi\Behat\Tests\PHPUnitContext:
+                    - '%paths.base%/phpunit.xml.dist'
+                    - '%paths.base%/src'
+    extensions:
+        Flaconi\Behat\Extension: ~
 ci:
   formatters:
     progress : ~
