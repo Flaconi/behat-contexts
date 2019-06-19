@@ -1,4 +1,4 @@
-Feature: Enqueue
+Feature: HttpClient
   Background:
     Given a context file "features/bootstrap/FeatureContext.php" containing:
         """
@@ -82,7 +82,7 @@ Feature: Enqueue
         1 scenario (1 passed)
         1 step (1 passed)
         """
-  Scenario: push a message to a topic and check content of the message
+  Scenario: send a request and check count
     Given a feature file containing:
     """
     Feature: Passing feature
@@ -98,7 +98,7 @@ Feature: Enqueue
         3 steps (3 passed)
         """
 
-  Scenario: push a message to a topic and check content of the message2
+  Scenario: send multiple request and check count
     Given a feature file containing:
     """
     Feature: Passing feature
@@ -114,4 +114,30 @@ Feature: Enqueue
         1 scenario (1 passed)
         4 steps (4 passed)
         """
+  Scenario: send a request and check called uri
+    Given a feature file containing:
+    """
+    Feature: Passing feature
+        Scenario: Passing scenario
+            Given the http client should respond with message from file "dummy.json"
+            When I send a request
+            Then the http client should have a request for GET path
+    """
+    When I run Behat
+    Then it should pass with:
+        """
+        1 scenario (1 passed)
+        3 steps (3 passed)
+        """
 
+  Scenario: send a request and check called uri
+    Given a feature file containing:
+    """
+    Feature: Passing feature
+        Scenario: Passing scenario
+            Given the http client should respond with message from file "dummy.json"
+            When I send a request
+            Then the http client should have a request for POST path
+    """
+    When I run Behat
+    Then it should fail with "Uri 'path' was never called."
