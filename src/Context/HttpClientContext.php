@@ -128,4 +128,20 @@ final class HttpClientContext implements Context
 
         throw new InvalidArgumentException(sprintf('Uri "%s" was never called.', $uri));
     }
+
+    /**
+     * @throws InvalidArgumentException
+     *
+     * @Given the http client should have a request for :method :uri
+     */
+    public function shouldHaveARequestForUriAndMethod(string $method, string $uri) : void
+    {
+        foreach ($this->client->getRequests() as $request) {
+            if ($request->getMethod() === $method && $request->getUri()->__toString() === $uri) {
+                return;
+            }
+        }
+
+        throw new InvalidArgumentException(sprintf('Uri \'%s\' was never called.', $uri));
+    }
 }
