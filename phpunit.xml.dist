@@ -7,7 +7,7 @@
 
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory>###REPLCAE_SRC###</directory>
+            <directory>###REPLACE_SRC###</directory>
         </whitelist>
     </filter>
 </phpunit>

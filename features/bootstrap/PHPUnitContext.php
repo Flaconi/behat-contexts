@@ -46,7 +46,7 @@ final class PHPUnitContext implements Context
     {
         $this->testContext->thereIsFile(
             'phpunit.xml.dist',
-            str_replace('###REPLCAE_SRC###', $this->sourceDir, file_get_contents($this->phpunitXmlConfigFile))
+            str_replace('###REPLACE_SRC###', $this->sourceDir, file_get_contents($this->phpunitXmlConfigFile))
         );
     }
 }
