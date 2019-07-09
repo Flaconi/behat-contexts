@@ -33,7 +33,8 @@ Feature: Enqueue
              */
             public function iPushToATopicADummyMessage(string $topic): void
             {
-                $this->enqueueContext->pushMessageToTopicInContext($topic, 'dummy', new PyStringNode(['{"foo": "bar"}'], 1));
+                $this->enqueueContext->haveAMessageInContextWithHeaderAndValue('bar', 'foo');
+                $this->enqueueContext->pushToTopicInContextAMessage($topic, 'dummy', new PyStringNode(['{"foo": "bar"}'], 1));
             }
 
             /**
@@ -41,7 +42,7 @@ Feature: Enqueue
              */
             public function topicShouldHaveADummyMessage(string $topic): void
             {
-                $this->enqueueContext->topicInContextShouldHaveAMessage($topic, 'dummy', new PyStringNode(['{"foo":"bar"}'], 1));
+                $this->enqueueContext->topicInContextShouldHaveAMessage($topic, 'dummy', new PyStringNode(['"properties":{"foo":"bar"},"headers":{"bar":"foo"}'], 1));
             }
         }
         """
