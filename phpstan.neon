@@ -1,10 +1,4 @@
 includes:
-    #- vendor/jangregor/phpstan-prophecy/src/extension.neon
-    #- vendor/phpstan/phpstan-phpunit/extension.neon
-    #- vendor/phpstan/phpstan-phpunit/rules.neon
-    - vendor/phpstan/phpstan-strict-rules/rules.neon
-    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
-    - vendor/localheinz/phpstan-rules/rules.neon
     - vendor/thecodingmachine/phpstan-safe-rule/phpstan-safe-rule.neon
 parameters:
     classesAllowedToBeExtended:
@@ -15,3 +9,6 @@ parameters:
         - src
     ignoreErrors:
         - '/Parameter #1 $configuration of method Symfony\Component\DependencyInjection\Extension\Extension::processConfiguration() expects Symfony\Component\Config\Definition\ConfigurationInterface, Symfony\Component\Config\Definition\ConfigurationInterface|null given./'
+        -
+            message: '#Cannot call method createMessage\(\) on Interop\\Queue\\PsrContext\|false\.#'
+            path: %currentWorkingDirectory%/src/Context/EnqueueContext.php

@@ -11,9 +11,12 @@ use Exception;
 use Interop\Queue\Context as QueueContext;
 use Interop\Queue\Exception\InvalidDestinationException;
 use Interop\Queue\Exception\InvalidMessageException;
+use Interop\Queue\Message;
 use PHPUnit\Framework\Assert;
+use Safe\Exceptions\JsonException;
 use function array_key_exists;
 use function explode;
+use function reset;
 use function Safe\file_get_contents;
 use function Safe\json_decode;
 use function Safe\sprintf;
@@ -24,6 +27,8 @@ final class EnqueueContext implements Context
 {
     /** @var array<QueueContext> */
     private $context;
+    /** @var Message */
+    private $message;
 
     /**
      * @param array<QueueContext> $context
@@ -31,6 +36,7 @@ final class EnqueueContext implements Context
     public function __construct(array $context)
     {
         $this->context = $context;
+        $this->message = reset($context)->createMessage();
     }
 
     /**
@@ -44,19 +50,46 @@ final class EnqueueContext implements Context
     }
 
     /**
+     * @throws JsonException
+     *
+     * @Given I have a message with properties from json:
+     */
+    public function haveAMessageInContextWithPropertiesFromJson(PyStringNode $jsonProperties) : void
+    {
+        $this->message->setProperties(json_decode($jsonProperties->getRaw(), true));
+    }
+
+    /**
+     * @throws JsonException
+     *
+     * @Given I have a message with header :headerName and value :headerValue
+     */
+    public function haveAMessageInContextWithHeaderAndValue(string $headerName, string $headerValue) : void
+    {
+        $this->message->setHeader($headerName, $headerValue);
+    }
+
+    /**
+     * @Given I push a message in context :contextName to :topic
+     */
+    public function pushMessageInContextToTopic(string $topicName, string $contextName) : void
+    {
+        $context = $this->getContext($contextName);
+        $topic   = $context->createQueue($topicName);
+        $context->createProducer()->send($topic, $this->message);
+    }
+
+    /**
      * @throws \Interop\Queue\Exception
      * @throws InvalidDestinationException
      * @throws InvalidMessageException
      *
      * @Given I push to :topic in context :contextName a message:
      */
-    public function pushMessageToTopicInContext(string $topicName, string $contextName, PyStringNode $message) : void
+    public function pushToTopicInContextAMessage(string $topicName, string $contextName, PyStringNode $message) : void
     {
-        $context = $this->getContext($contextName);
-
-        $psrMessage = $context->createMessage('', json_decode($message->getRaw(), true));
-        $topic      = $context->createQueue($topicName);
-        $context->createProducer()->send($topic, $psrMessage);
+        $this->haveAMessageInContextWithPropertiesFromJson($message);
+        $this->pushMessageInContextToTopic($topicName, $contextName);
     }
 
     /**
@@ -100,7 +133,6 @@ final class EnqueueContext implements Context
             if (trim($d) === '') {
                 continue;
             }
-
             Assert::assertStringContainsString($message->getRaw(), $d);
         }
     }
