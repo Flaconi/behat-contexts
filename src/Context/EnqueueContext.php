@@ -14,14 +14,15 @@ use Interop\Queue\Exception\InvalidMessageException;
 use Interop\Queue\Message;
 use PHPUnit\Framework\Assert;
 use Safe\Exceptions\JsonException;
+use SebastianBergmann\Exporter\Exporter;
 use function array_key_exists;
 use function explode;
+use function mb_strpos;
 use function reset;
 use function Safe\file_get_contents;
 use function Safe\json_decode;
 use function Safe\sprintf;
 use function substr_count;
-use function trim;
 
 final class EnqueueContext implements Context
 {
@@ -130,11 +131,12 @@ final class EnqueueContext implements Context
         $data = explode('|', file_get_contents($topic->getFileInfo()->getPathname()));
 
         foreach ($data as $d) {
-            if (trim($d) === '') {
-                continue;
+            if (mb_strpos($d, $message->getRaw()) !== false) {
+                return;
             }
-            Assert::assertStringContainsString($message->getRaw(), $d);
         }
+
+        throw new Exception(sprintf('Expected to find \'%s\' in \'%s\'', $message->getRaw(), (new Exporter())->export($data)));
     }
 
     private function getContext(string $contextName) : QueueContext
