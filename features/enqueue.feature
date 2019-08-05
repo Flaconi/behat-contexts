@@ -44,6 +44,14 @@ Feature: Enqueue
             {
                 $this->enqueueContext->topicInContextShouldHaveAMessage($topic, 'dummy', new PyStringNode(['"properties":{"foo":"bar"},"headers":{"bar":"foo"}'], 1));
             }
+
+            /**
+             * @Then the topic :topic should not have a dummy message
+             */
+            public function topicShouldNotHaveADummyMessage(string $topic): void
+            {
+                $this->enqueueContext->topicInContextShouldHaveAMessage($topic, 'dummy', new PyStringNode(['"other":{"foo":"bar"},"headers":{"bar":"foo"}'], 1));
+            }
         }
         """
     And there is a phpunit config file
@@ -102,6 +110,20 @@ Feature: Enqueue
         """
         1 scenario (1 passed)
         2 steps (2 passed)
+        """
+  Scenario: push a message to a topic and check content of the message and fail
+    Given a feature file containing:
+    """
+    Feature: Passing feature
+        Scenario: Passing scenario
+            When I push to order_test a dummy message
+            Then the topic order_test should not have a dummy message
+    """
+    When I run Behat
+    Then it should fail with:
+        """
+        1 scenario (1 failed)
+        2 steps (1 passed, 1 failed)
         """
 
   Scenario: push a message to a topic and count
