@@ -111,6 +111,21 @@ Feature: Enqueue
         1 scenario (1 passed)
         2 steps (2 passed)
         """
+  Scenario: push a message to a topic and check count in non existing context
+    Given a feature file containing:
+    """
+    Feature: Passing feature
+        Scenario: Passing scenario
+            When I push to order_test a dummy message
+            Then the count of topic order_test in context dummy2 should be 1
+    """
+    When I run Behat
+    Then it should fail with:
+        """
+        1 scenario (1 failed)
+        2 steps (1 passed, 1 failed)
+        """
+
   Scenario: push a message to a topic and check content of the message and fail
     Given a feature file containing:
     """
